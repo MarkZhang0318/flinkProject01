@@ -1,6 +1,7 @@
 package org.bw.flink1;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -22,7 +23,13 @@ public class Job4 {
         //1.创建程序入口
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         //2.添加要处理的数据源
-        DataStreamSource<String> source = env.socketTextStream("192.168.116.130", 9999);
+        /*
+        * 参数：--hostname hadoop5 --port 9999
+        *  */
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        String hostname = parameterTool.get("hostname");
+        int port = parameterTool.getInt("port");
+        DataStreamSource<String> source = env.socketTextStream(hostname, port);
         //3.处理数据
         SingleOutputStreamOperator<WordCount> result = source.flatMap(new Job3WordCount()).keyBy(t -> t.getWord()).sum("count");
 
